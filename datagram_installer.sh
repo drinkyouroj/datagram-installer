@@ -33,7 +33,8 @@ After=network.target
 Type=simple
 User=$user
 WorkingDirectory=$HOME
-ExecStart=$exec_path run -- -key $(cat $KEY_FILE)
+EnvironmentFile=$HOME/.datagram_key
+ExecStart=$exec_path run -- -key $DATAGRAM_KEY
 Restart=always
 RestartSec=10
 StandardOutput=append:$LOG_FILE
@@ -74,7 +75,7 @@ if [ -f "$KEY_FILE" ]; then
     else
         read -p "Please enter your Datagram License key: " LICENSE_KEY
         if [ -n "$LICENSE_KEY" ]; then
-            echo "$LICENSE_KEY" > "$KEY_FILE"
+            echo "DATAGRAM_KEY=$LICENSE_KEY" > "$KEY_FILE"
             chmod 600 "$KEY_FILE"
             echo "License key updated."
         else
@@ -85,7 +86,7 @@ else
     # Prompt for license key if not found
     read -p "Please enter your Datagram License key (find it at https://dashboard.datagram.network/wallet?tab=licenses): " LICENSE_KEY
     if [ -n "$LICENSE_KEY" ]; then
-        echo "$LICENSE_KEY" > "$KEY_FILE"
+        echo "DATAGRAM_KEY=$LICENSE_KEY" > "$KEY_FILE"
         chmod 600 "$KEY_FILE"
         echo "License key saved to $KEY_FILE"
     else
@@ -127,4 +128,3 @@ echo "- To view logs: sudo journalctl -u $SERVICE_NAME -f"
 echo "- To stop service: sudo systemctl stop $SERVICE_NAME"
 echo "- To start service: sudo systemctl start $SERVICE_NAME"
 echo "- To view status: systemctl status $SERVICE_NAME"
-echo "Logs are being written to /var/tmp/datagram_log"
