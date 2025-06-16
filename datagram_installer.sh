@@ -5,6 +5,7 @@ set -e
 
 # Constants
 CLI_BINARY="datagram-cli-x86_64-linux"
+WRAPPER_SCRIPT="$HOME/datagram-cli-wrapper.sh"
 SERVICE_NAME="datagram-cli"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
 KEY_FILE="$HOME/.datagram_key"
@@ -33,7 +34,7 @@ After=network.target
 Type=simple
 User=$user
 WorkingDirectory=$HOME
-ExecStart=$exec_path run -- -key $(cat $KEY_FILE)
+ExecStart=$WRAPPER_SCRIPT
 Restart=always
 RestartSec=10
 StandardOutput=append:$LOG_FILE
@@ -50,6 +51,46 @@ EOF
     sudo systemctl enable $SERVICE_NAME
     
     echo "Systemd service created and enabled."
+}
+
+# Create wrapper script
+create_wrapper_script() {
+    echo "Creating wrapper script..."
+    
+    cat > "$WRAPPER_SCRIPT" << 'EOF'
+#!/bin/bash
+
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Path to the CLI binary
+CLI_BINARY="$SCRIPT_DIR/datagram-cli-x86_64-linux"
+
+# Path to the key file
+KEY_FILE="$HOME/.datagram_key"
+
+# Check if key file exists
+if [ ! -f "$KEY_FILE" ]; then
+    echo "Error: Key file not found at $KEY_FILE"
+    exit 1
+fi
+
+# Read the license key from the file
+LICENSE_KEY="$(cat "$KEY_FILE")"
+
+# Check if the key is empty
+if [ -z "$LICENSE_KEY" ]; then
+    echo "Error: Empty license key in $KEY_FILE"
+    exit 1
+fi
+
+# Execute the CLI with the key
+exec "$CLI_BINARY" run -- -key "$LICENSE_KEY"
+EOF
+
+    # Make the wrapper script executable
+    chmod 700 "$WRAPPER_SCRIPT"
+    echo "Wrapper script created at $WRAPPER_SCRIPT"
 }
 
 # Change to user's home directory
@@ -74,7 +115,7 @@ if [ -f "$KEY_FILE" ]; then
     else
         read -p "Please enter your Datagram License key: " LICENSE_KEY
         if [ -n "$LICENSE_KEY" ]; then
-            # Store just the key without quotes or variable name
+            # Store just the plain key value
             echo "$LICENSE_KEY" > "$KEY_FILE"
             chmod 600 "$KEY_FILE"
             echo "License key updated."
@@ -86,7 +127,7 @@ else
     # Prompt for license key if not found
 read -p "Please enter your Datagram License key (find it at https://dashboard.datagram.network/wallet?tab=licenses): " LICENSE_KEY
     if [ -n "$LICENSE_KEY" ]; then
-        # Store just the key without quotes or variable name
+        # Store just the plain key value
         echo "$LICENSE_KEY" > "$KEY_FILE"
         chmod 600 "$KEY_FILE"
         echo "License key saved to $KEY_FILE"
@@ -101,6 +142,17 @@ if [ ! -d "$(dirname $LOG_FILE)" ]; then
     sudo mkdir -p "$(dirname $LOG_FILE)"
     sudo touch "$LOG_FILE"
     sudo chown $(whoami) "$LOG_FILE"
+fi
+
+# Create wrapper script
+if [ -f "$WRAPPER_SCRIPT" ]; then
+    read -p "Wrapper script already exists. Do you want to recreate it? (y/N) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        create_wrapper_script
+    fi
+else
+    create_wrapper_script
 fi
 
 # Create or update systemd service

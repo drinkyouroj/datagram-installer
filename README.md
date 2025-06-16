@@ -6,10 +6,11 @@ A bash script to install and run the Datagram CLI as a systemd service on Linux 
 
 - Automatic download and installation of the latest Datagram CLI
 - Secure storage of license key in `~/.datagram_key` with restricted permissions (600)
+- Secure wrapper script that reads the key from the key file at runtime
 - Systemd service for automatic startup and process management
 - Automatic log rotation via systemd-journald
 - Graceful error handling and user feedback
-- Environment-based key storage for enhanced security
+- No key exposure in systemd service files or process listings
 
 ## Prerequisites
 
@@ -36,9 +37,10 @@ A bash script to install and run the Datagram CLI as a systemd service on Linux 
 
 1. Downloads the latest Datagram CLI binary (if not already present)
 2. Securely stores your license key in `~/.datagram_key`
-3. Creates a systemd service file at `/etc/systemd/system/datagram-cli.service`
-4. Sets up log rotation via systemd-journald
-5. Enables and starts the service
+3. Creates a wrapper script (`~/datagram-cli-wrapper.sh`) that reads the key at runtime
+4. Creates a systemd service file at `/etc/systemd/system/datagram-cli.service`
+5. Sets up log rotation via systemd-journald
+6. Enables and starts the service
 
 ## Service Management
 
@@ -101,10 +103,12 @@ You can find your Datagram license key by:
 
 ## Security Considerations
 
-- The license key is stored as an environment variable in `~/.datagram_key` with 600 permissions
+- The license key is stored in `~/.datagram_key` with 600 permissions (read/write only for the owner)
+- A secure wrapper script (`~/datagram-cli-wrapper.sh`) with 700 permissions reads the key at runtime
+- The key is never stored in the systemd service file
 - The key file is owned by the current user and not accessible by other users
 - The service runs under your user account, not root
-- The key is never exposed in process listings or systemd service files
+- The wrapper script ensures the key is not visible in process listings
 - Logs are accessible only to privileged users
 
 ## Troubleshooting
