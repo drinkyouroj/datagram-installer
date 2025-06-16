@@ -5,10 +5,11 @@ A bash script to install and run the Datagram CLI as a systemd service on Linux 
 ## Features
 
 - Automatic download and installation of the latest Datagram CLI
-- Secure storage of license key in `~/.datagram_key` with restricted permissions
+- Secure storage of license key in `~/.datagram_key` with restricted permissions (600)
 - Systemd service for automatic startup and process management
 - Automatic log rotation via systemd-journald
 - Graceful error handling and user feedback
+- Environment-based key storage for enhanced security
 
 ## Prerequisites
 
@@ -80,11 +81,15 @@ sudo systemctl disable datagram-cli
    ```bash
    nano ~/.datagram_key
    ```
-2. Replace the existing key with your new key
+2. Update the `DATAGRAM_KEY` value with your new key (e.g., `DATAGRAM_KEY=your-new-key-here`)
 3. Save the file
-4. Restart the service:
+4. Restart the service to apply changes:
    ```bash
    sudo systemctl restart datagram-cli
+   ```
+5. Verify the service is running with the new key:
+   ```bash
+   systemctl status datagram-cli
    ```
 
 ## Finding Your License Key
@@ -96,8 +101,10 @@ You can find your Datagram license key by:
 
 ## Security Considerations
 
-- The license key is stored with restricted permissions (600) in your home directory
+- The license key is stored as an environment variable in `~/.datagram_key` with 600 permissions
+- The key file is owned by the current user and not accessible by other users
 - The service runs under your user account, not root
+- The key is never exposed in process listings or systemd service files
 - Logs are accessible only to privileged users
 
 ## Troubleshooting

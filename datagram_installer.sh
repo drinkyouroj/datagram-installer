@@ -33,8 +33,7 @@ After=network.target
 Type=simple
 User=$user
 WorkingDirectory=$HOME
-EnvironmentFile=$HOME/.datagram_key
-ExecStart=$exec_path run -- -key $DATAGRAM_KEY
+ExecStart=$exec_path run -- -key $(cat $KEY_FILE)
 Restart=always
 RestartSec=10
 StandardOutput=append:$LOG_FILE
@@ -75,7 +74,8 @@ if [ -f "$KEY_FILE" ]; then
     else
         read -p "Please enter your Datagram License key: " LICENSE_KEY
         if [ -n "$LICENSE_KEY" ]; then
-            echo "DATAGRAM_KEY=$LICENSE_KEY" > "$KEY_FILE"
+            # Store just the key without quotes or variable name
+            echo "$LICENSE_KEY" > "$KEY_FILE"
             chmod 600 "$KEY_FILE"
             echo "License key updated."
         else
@@ -84,9 +84,10 @@ if [ -f "$KEY_FILE" ]; then
     fi
 else
     # Prompt for license key if not found
-    read -p "Please enter your Datagram License key (find it at https://dashboard.datagram.network/wallet?tab=licenses): " LICENSE_KEY
+read -p "Please enter your Datagram License key (find it at https://dashboard.datagram.network/wallet?tab=licenses): " LICENSE_KEY
     if [ -n "$LICENSE_KEY" ]; then
-        echo "DATAGRAM_KEY=$LICENSE_KEY" > "$KEY_FILE"
+        # Store just the key without quotes or variable name
+        echo "$LICENSE_KEY" > "$KEY_FILE"
         chmod 600 "$KEY_FILE"
         echo "License key saved to $KEY_FILE"
     else
