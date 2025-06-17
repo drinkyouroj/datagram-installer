@@ -98,7 +98,7 @@ sudo systemctl disable datagram-cli
 
 You can find your Datagram license key by:
 1. [Signing up](https://dashboard.datagram.network?ref=535715481) for a Datagram account
-2. Logging into your Datagram dashboard at [https://dashboard.datagram.network/wallet?tab=licenses](https://dashboard.datagram.network)
+2. Logging into your Datagram dashboard at [https://dashboard.datagram.network/](https://dashboard.datagram.network/wallet?tab=licenses)
 3. Navigating to Wallet > Licenses
 4. Copying your license key
 ![Datagram Network Dashboard Licenses tab, with an arrow pointing to where to click to copy your license key](https://azure-adequate-krill-31.mypinata.cloud/ipfs/bafkreic66kkj4pqt7orgijy2rx5676sk4gyfrmhpxtl4wgbewytd3delh4)
