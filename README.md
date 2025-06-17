@@ -123,18 +123,6 @@ Common issues:
 - Permission issues: The script should be run as a regular user with sudo privileges
 - Invalid license key: Verify the key is correct and hasn't expired
 
-## Stopping the Service
-
-To stop the Datagram CLI, you'll need to find and terminate the process:
-
-```bash
-# Find the process ID
-pgrep -f "datagram-cli"
-
-# Kill the process (replace PID with the actual process ID)
-kill <PID>
-```
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
