@@ -10,7 +10,7 @@ A bash script to install and run the Datagram CLI as a systemd service on Linux 
 - Systemd service for automatic startup and process management
 - Automatic log rotation via systemd-journald
 - Graceful error handling and user feedback
-- No key exposure in systemd service files or process listings
+- No key exposure in systemd service files
 
 ## Prerequisites
 
