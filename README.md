@@ -18,7 +18,7 @@ A bash script to install and run the Datagram CLI as a systemd service on Linux 
 - `wget` installed
 - `systemd` init system
 - `sudo` privileges (for service installation)
-- Valid Datagram license key
+- Valid Datagram license key (get one [here](https://dashboard.datagram.network?ref=535715481))
 
 ## Installation
 
