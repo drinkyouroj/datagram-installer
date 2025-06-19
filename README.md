@@ -1,6 +1,6 @@
 # Datagram CLI Installer
 
-A bash script to install and run the Datagram CLI as a systemd service on Linux systems, with automatic restarts and secure key storage.
+A bash script to install and run the Datagram CLI as a systemd service on Linux systems, with automatic restarts, secure key storage, and easy updates.
 
 ## Features
 
@@ -11,6 +11,7 @@ A bash script to install and run the Datagram CLI as a systemd service on Linux 
 - Automatic log rotation via systemd-journald
 - Graceful error handling and user feedback
 - No key exposure in systemd service files
+- Easy one-command updates with `--update` flag
 
 ## Prerequisites
 
@@ -32,6 +33,23 @@ A bash script to install and run the Datagram CLI as a systemd service on Linux 
    ./datagram_installer.sh
    ```
 4. Follow the prompts to enter your Datagram license key
+
+## Updating
+
+To update to the latest version of the Datagram CLI, simply run:
+
+```bash
+./datagram_installer.sh --update
+# or use the short form:
+# ./datagram_installer.sh -u
+```
+
+This will:
+1. Verify your license key exists (or prompt for it if missing)
+2. Check for the systemd service file (create if missing)
+3. Stop the service if it's running
+4. Download the latest Datagram CLI binary
+5. Restart the service
 
 ## What the Script Does
 
@@ -83,7 +101,7 @@ sudo systemctl disable datagram-cli
    ```bash
    nano ~/.datagram_key
    ```
-2. Update the `DATAGRAM_KEY` value with your new key (e.g., `DATAGRAM_KEY=your-new-key-here`)
+2. Update the key with your new key (just the key value, no variable name needed)
 3. Save the file
 4. Restart the service to apply changes:
    ```bash
@@ -98,10 +116,21 @@ sudo systemctl disable datagram-cli
 
 You can find your Datagram license key by:
 1. [Signing up](https://dashboard.datagram.network?ref=535715481) for a Datagram account
-2. Logging into your Datagram dashboard at [https://dashboard.datagram.network/](https://dashboard.datagram.network/wallet?tab=licenses)
-3. Navigating to Wallet > Licenses
-4. Copying your license key
+2. Visiting the [Licenses](https://dashboard.datagram.network/wallet?tab=licenses) page in your dashboard
+3. Copying your license key
 ![Datagram Network Dashboard Licenses tab, with an arrow pointing to where to click to copy your license key](https://azure-adequate-krill-31.mypinata.cloud/ipfs/bafkreic66kkj4pqt7orgijy2rx5676sk4gyfrmhpxtl4wgbewytd3delh4)
+
+## Version History
+
+### v1.1 (2024-06-19)
+- Added `--update`/`-u` flag for easy updates
+- Better service handling during updates
+
+### v1.0 (2024-06-19)
+- Initial release
+- Automatic installation and setup of Datagram CLI
+- Systemd service integration
+- Secure key storage and management
 
 ## Security Considerations
 
