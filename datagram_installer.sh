@@ -3,6 +3,9 @@
 # Exit on error
 set -e
 
+# Version tag
+VERSION="v1.1"
+
 # Constants
 CLI_BINARY="datagram-cli-x86_64-linux"
 WRAPPER_SCRIPT="$HOME/datagram-cli-wrapper.sh"
@@ -53,7 +56,7 @@ EOF
     echo "Systemd service created and enabled."
 }
 
-# Create wrapper script
+# Function to create wrapper script
 create_wrapper_script() {
     echo "Creating wrapper script..."
     
@@ -93,15 +96,64 @@ EOF
     echo "Wrapper script created at $WRAPPER_SCRIPT"
 }
 
+# Function to prompt for license key if not exists
+prompt_for_key() {
+    if [ ! -f "$KEY_FILE" ]; then
+        read -p "Please enter your Datagram License key (find it at https://dashboard.datagram.network/wallet?tab=licenses): " LICENSE_KEY
+        if [ -n "$LICENSE_KEY" ]; then
+            echo "$LICENSE_KEY" > "$KEY_FILE"
+            chmod 600 "$KEY_FILE"
+            echo "License key saved to $KEY_FILE"
+        else
+            echo "Error: No license key provided. Exiting."
+            exit 1
+        fi
+    fi
+}
+
+# Function to download latest CLI
+download_latest_cli() {
+    echo "Downloading latest Datagram CLI..."
+    wget -q "https://github.com/Datagram-Group/datagram-cli-release/releases/latest/download/$CLI_BINARY" -O "$CLI_BINARY"
+    chmod +x "$CLI_BINARY"
+    echo "Download complete."
+}
+
+# Function to stop service if running
+stop_service() {
+    if systemctl is-active --quiet $SERVICE_NAME; then
+        echo "Stopping $SERVICE_NAME service..."
+        sudo systemctl stop $SERVICE_NAME
+    fi
+}
+
+# Parse command line arguments
+if [[ "$1" == "--update" || "$1" == "-u" ]]; then
+    echo "Running update process..."
+    prompt_for_key
+
+    if [ ! -f "$SERVICE_FILE" ]; then
+        echo "$SERVICE_FILE not found. Creating service file..."
+        create_systemd_service
+    else
+        stop_service
+    fi
+
+    download_latest_cli
+
+    echo "Starting $SERVICE_NAME service..."
+    sudo systemctl start $SERVICE_NAME
+
+    echo "Update complete."
+    exit 0
+fi
+
 # Change to user's home directory
 cd ~
 
 # Download Datagram CLI if it doesn't exist
 if [ ! -f "./$CLI_BINARY" ]; then
-    echo "Downloading Datagram CLI..."
-    wget -q "https://github.com/Datagram-Group/datagram-cli-release/releases/latest/download/$CLI_BINARY"
-    chmod +x "./$CLI_BINARY"
-    echo "Download complete."
+    download_latest_cli
 else
     echo "Datagram CLI already exists, skipping download."
 fi
@@ -125,7 +177,7 @@ if [ -f "$KEY_FILE" ]; then
     fi
 else
     # Prompt for license key if not found
-read -p "Please enter your Datagram License key (find it at https://dashboard.datagram.network/wallet?tab=licenses): " LICENSE_KEY
+    read -p "Please enter your Datagram License key (find it at https://dashboard.datagram.network/wallet?tab=licenses): " LICENSE_KEY
     if [ -n "$LICENSE_KEY" ]; then
         # Store just the plain key value
         echo "$LICENSE_KEY" > "$KEY_FILE"
